@@ -3,24 +3,21 @@ Chef Cookbook for Layer-X
 =======
 layerx-chef Cookbook
 ====================
-TODO: Enter the cookbook description here.
-
-e.g.
-This cookbook makes your favorite breakfast sandwich.
+This is the official Chef Cookbook for deploying Layer-X.
 
 Requirements
 ------------
-TODO: List your cookbook requirements. Be sure to include any requirements this cookbook has on platforms, libraries, other cookbooks, packages, operating systems, etc.
+It requires ETCD and Go, as well as at least one Resource Provider (Mesos, Kubernetes, or Docker Swarm) to be running.
+
+Note: if using Mesos as a resource provider, the Layer-X RPI for Mesos must be deployed on the Mesos Master node.
 
 e.g.
 #### packages
-- `toaster` - layerx-chef needs toaster to brown your bagel.
+- `golang` - layerx-chef needs golang to compile sources
+- `etcd` - layerx requires etcd to be running and reachable
 
 Attributes
 ----------
-TODO: List your cookbook attributes here.
-
-e.g.
 #### layerx-chef::default
 <table>
   <tr>
@@ -30,10 +27,10 @@ e.g.
     <th>Default</th>
   </tr>
   <tr>
-    <td><tt>['layerx-chef']['bacon']</tt></td>
-    <td>Boolean</td>
-    <td>whether to include bacon</td>
-    <td><tt>true</tt></td>
+    <td><tt>['commit']</tt></td>
+    <td>String</td>
+    <td>git commit checksum to use when building layer-x</td>
+    <td><tt>latest</tt></td>
   </tr>
 </table>
 
@@ -53,19 +50,3 @@ Just include `layerx-chef` in your node's `run_list`:
   ]
 }
 ```
-
-Contributing
-------------
-TODO: (optional) If this is a public cookbook, detail the process for contributing. If this is a private cookbook, remove this section.
-
-e.g.
-1. Fork the repository on Github
-2. Create a named feature branch (like `add_component_x`)
-3. Write your change
-4. Write tests for your change (if applicable)
-5. Run the tests, ensuring they all pass
-6. Submit a Pull Request using Github
-
-License and Authors
--------------------
-Authors: TODO: List authors
