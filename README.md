@@ -1,7 +1,7 @@
-# layerx-chef
+# chef-layerx
 Chef Cookbook for Layer-X
 =======
-layerx-chef Cookbook
+chef-layerx Cookbook
 ====================
 This is the official Chef Cookbook for deploying Layer-X.
 
@@ -13,12 +13,12 @@ Note: if using Mesos as a resource provider, the Layer-X RPI for Mesos must be d
 
 e.g.
 #### packages
-- `golang` - layerx-chef needs golang to compile sources
+- `golang` - chef-layerx needs golang to compile sources
 - `etcd` - layerx requires etcd to be running and reachable
 
 Attributes
 ----------
-#### layerx-chef::default
+#### chef-layerx::default
 <table>
   <tr>
     <th>Key</th>
@@ -27,7 +27,7 @@ Attributes
     <th>Default</th>
   </tr>
   <tr>
-    <td><tt>['commit']</tt></td>
+    <td><tt>['layerx']['commit']</tt></td>
     <td>String</td>
     <td>git commit checksum to use when building layer-x</td>
     <td><tt>latest</tt></td>
@@ -36,17 +36,17 @@ Attributes
 
 Usage
 -----
-#### layerx-chef::default
+#### chef-layerx::default
 TODO: Write usage instructions for each cookbook.
 
 e.g.
-Just include `layerx-chef` in your node's `run_list`:
+Just include `chef-layerx` in your node's `run_list`:
 
 ```json
 {
   "name":"my_node",
   "run_list": [
-    "recipe[layerx-chef]"
+    "recipe[chef-layerx]"
   ]
 }
 ```
