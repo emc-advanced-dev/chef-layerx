@@ -37,16 +37,15 @@ Attributes
 Usage
 -----
 #### chef-layerx::default
-TODO: Write usage instructions for each cookbook.
 
 e.g.
-Just include `chef-layerx` in your node's `run_list`:
+Just include `layerx` in your node's `run_list`:
 
 ```json
 {
   "name":"my_node",
   "run_list": [
-    "recipe[chef-layerx]"
+    "recipe[layerx]"
   ]
 }
 ```
