@@ -69,3 +69,33 @@ bash 'build_layerx' do
   user node['layerx']['user']
   group node['layerx']['group']
 end
+
+logs_dir = "/var/log/layerx"
+
+directory "#{logs_dir}" do
+  action :create
+  mode 0755
+  recursive true
+  owner node['layerx']['user']
+  group node['layerx']['group']
+end
+
+
+etcd_installation_binary 'default' do
+  action :create
+end
+
+etcd_service_manager_execute 'default' do
+  action :start
+end
+
+# Launch Layer-X
+bash 'run_layerx' do
+  code <<-EOH
+    echo "STARTING LAYERX CORE"
+    nohup layerx-core > #{logs_dir}/core.log 2>&1 &
+  EOH
+  only_if LayerxHelper::in_path?('layerx-core')
+  user node['layerx']['user']
+  group node['layerx']['group']
+end

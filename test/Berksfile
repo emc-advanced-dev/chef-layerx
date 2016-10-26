@@ -1,4 +1,5 @@
 source "https://supermarket.getchef.com"
 
 cookbook 'golang',  github: "NOX73/chef-golang"
+cookbook 'etcd', '~> 4.1.0', github: "ilackarms/etcd-chef"
 cookbook 'layerx', path: "../"
