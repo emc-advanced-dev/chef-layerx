@@ -21,7 +21,7 @@ apt_package 'make' do
   action :install
 end
 
-gopath = ENV['GOPATH'] ||= "#{ENV['HOME']}/go"
+gopath = '/opt/go'
 repo_dir = "#{gopath}/src/github.com/emc-advanced-dev"
 layerx_path = "#{repo_dir}/layerx"
 
@@ -29,6 +29,8 @@ directory "#{repo_dir}" do
   action :create
   mode 0755
   recursive true
+  owner node['layerx']['user']
+  group node['layerx']['group']
 end
 
 #Clone LayerX from github
@@ -36,17 +38,34 @@ git layerx_path do
   repository 'git://github.com/emc-advanced-dev/layerx.git'
   reference 'master'
   action :sync
+  user node['layerx']['user']
+  group node['layerx']['group']
 end
 
+
+# Validate go is installed
 bash 'build_layerx' do
-  # Validate go is installed
-  unless LayerxHelper::in_path?('go')
-    raise 'go executable not found in PATH'
+  env = Hash.new
+  ENV.each do |key, val|
+    env[key] = val
   end
   # make & put binaries into path
   cwd layerx_path
+  environment env
   code <<-EOH
+    echo "MY ENV:"
+    env
+    echo "BUILDING LAYER-X ALL BINARIES"
+    echo $PATH
+    echo #{ENV['PATH']}
+    export PATH=#{ENV['PATH']}:#{gopath}/bin:/usr/local/go/bin:/opt/go/bin
+    export GOPATH=#{gopath}
     make
-    sudo cp #{layerx_path}/bin/* /usr/local/bin
+    sudo cp -r #{layerx_path}/bin/* /usr/local/bin/
   EOH
+  only_if LayerxHelper::in_path?('go')
+  only_if LayerxHelper::in_path?('go-bindata')
+  only_if LayerxHelper::in_path?('go-bindata-assetfs')
+  user node['layerx']['user']
+  group node['layerx']['group']
 end
