@@ -50,9 +50,13 @@ Vagrant::Config.run do |runconfig|
           "github.com/elazarl/go-bindata-assetfs/..."
         ]
       },
+      :java => {
+        :jdk_version => "8",
+      },
       :layerx => {
         :user => "vagrant",
         :group => "vagrant",
+        :deploy_marathon => true
       }
     }
   end
