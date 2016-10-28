@@ -64,10 +64,9 @@ bash 'build_layerx' do
     echo "BUILDING LAYER-X ALL BINARIES"
     echo $PATH
     echo #{ENV['PATH']}
-    export PATH=#{ENV['PATH']}:#{gopath}/bin:/usr/local/go/bin:/opt/go/bin
+    export PATH=#{ENV['PATH']}:#{gopath}/bin:/usr/local/go/bin:/opt/go/bin:#{layerx_path}/bin
     export GOPATH=#{gopath}
     make
-    sudo cp -r #{layerx_path}/bin/* /usr/local/bin/
   EOH
   only_if LayerxHelper::in_path?('go') && LayerxHelper::in_path?('go-bindata') && LayerxHelper::in_path?('go-bindata-assetfs')
   user user
@@ -96,6 +95,7 @@ end
 # Launch Layer-X
 bash 'run_layerx' do
   code <<-EOH
+    export PATH=#{ENV['PATH']}:#{gopath}/bin:/usr/local/go/bin:/opt/go/bin:#{layerx_path}/bin
     echo "STARTING LAYERX CORE"
     nohup layerx-core > #{logs_dir}/core.log 2>&1 &
     sleep 2
