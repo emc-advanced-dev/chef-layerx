@@ -101,6 +101,8 @@ bash 'run_layerx' do
     sleep 2
     echo "STARTING MESOS TPI"
     nohup layerx-mesos-tpi -layerx #{node['ipaddress']}:5000 -localip #{node['ipaddress']} > #{logs_dir}/mesos_tpi.log 2>&1 &
+    echo "STARTING MESOS RPI"
+    nohup layerx-mesos-rpi -layerx #{node['ipaddress']}:5000 -localip #{node['ipaddress']} --master #{node['ipaddress']}:5050 > #{logs_dir}/mesos_rpi.log 2>&1 &
   EOH
   only_if (LayerxHelper::in_path?('layerx-core') && LayerxHelper::in_path?('layerx-mesos-tpi'))
   user user
