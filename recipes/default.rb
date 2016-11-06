@@ -15,9 +15,6 @@
 # dependent recipes
 include_recipe 'apt'
 include_recipe 'golang'
-if node['layerx']['deploy_marathon']
-  include_recipe 'java'
-end
 
 # install make if not available
 apt_package 'make' do
@@ -45,7 +42,7 @@ git layerx_path do
   reference 'master'
   action :sync
   user user
-  group 
+  group
 end
 
 
@@ -83,26 +80,33 @@ directory "#{logs_dir}" do
   group group
 end
 
-
-etcd_installation_binary 'default' do
-  action :create
-end
-
-etcd_service_manager_execute 'default' do
-  action :start
+bash 'install_etcd' do
+  code <<-EOH
+    echo "DOWNLOADING ETCD BINARY"
+    wget https://github.com/coreos/etcd/releases/download/v3.0.14/etcd-v3.0.14-linux-amd64.tar.gz
+    tar xvf etcd-v3.0.14-linux-amd64.tar.gz
+    echo "STARTING ETCD"
+    nohup ./etcd-v3.0.14-linux-amd64/etcd > #{logs_dir}/etcd.log 2>&1 &
+  EOH
+  cwd "/home/#{user}"
+  only_if (node['layerx']['deploy_marathon'] && LayerxHelper::in_path?('layerx-core') && LayerxHelper::in_path?('layerx-mesos-tpi'))
+  user user
+  group group
 end
 
 # Launch Layer-X
 bash 'run_layerx' do
   code <<-EOH
+    echo "STARTING ETCD"
+
     export PATH=#{ENV['PATH']}:#{gopath}/bin:/usr/local/go/bin:/opt/go/bin:#{layerx_path}/bin
     echo "STARTING LAYERX CORE"
-    nohup layerx-core > #{logs_dir}/core.log 2>&1 &
+    nohup layerx-core -etcd 127.0.0.1:2379 > #{logs_dir}/core.log 2>&1 &
     sleep 2
     echo "STARTING MESOS TPI"
-    nohup layerx-mesos-tpi -layerx #{node['ipaddress']}:5000 -localip #{node['ipaddress']} > #{logs_dir}/mesos_tpi.log 2>&1 &
+    nohup layerx-mesos-tpi -layerx #{node['layerx']['bind_address']}:5000 -localip #{node['layerx']['bind_address']} > #{logs_dir}/mesos_tpi.log 2>&1 &
     echo "STARTING MESOS RPI"
-    nohup layerx-mesos-rpi -layerx #{node['ipaddress']}:5000 -localip #{node['ipaddress']} --master #{node['ipaddress']}:5050 > #{logs_dir}/mesos_rpi.log 2>&1 &
+    nohup layerx-mesos-rpi -layerx #{node['layerx']['bind_address']}:5000 -localip #{node['layerx']['bind_address']} --master #{node['layerx']['bind_address']}:5050 > #{logs_dir}/mesos_rpi.log 2>&1 &
   EOH
   only_if (LayerxHelper::in_path?('layerx-core') && LayerxHelper::in_path?('layerx-mesos-tpi'))
   user user
@@ -113,10 +117,9 @@ bash 'install & run marathon' do
   code <<-EOH
     sudo service marathon stop #in case it's running
     echo "DOWNLOADING MARATHON BINARY"
-    curl -O http://downloads.mesosphere.com/marathon/v1.1.1/marathon-1.1.1.tgz && tar xzf marathon-1.1.1.tgz
+    curl -O http://downloads.mesosphere.com/marathon/v0.15.2/marathon-0.15.2.tgz && tar xzf marathon-0.15.2.tgz
     echo "STARTING MARATHON"
-    sleep 30 #wait for zookeeper to be ready?
-    nohup marathon-1.1.1/bin/start --master #{node['ipaddress']}:3000 --task_launch_confirm_timeout 1200000 --task_launch_timeout 1200000 > #{logs_dir}/marathon.log 2>&1 &
+    nohup marathon-0.15.2/bin/start --master #{node['layerx']['bind_address']}:3000 --task_launch_confirm_timeout 1200000 --task_launch_timeout 1200000 > #{logs_dir}/marathon.log 2>&1 &
   EOH
   cwd "/home/#{user}"
   only_if (node['layerx']['deploy_marathon'] && LayerxHelper::in_path?('layerx-core') && LayerxHelper::in_path?('layerx-mesos-tpi'))
