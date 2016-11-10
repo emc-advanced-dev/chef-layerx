@@ -123,16 +123,14 @@ bash 'run_layerx_kubernetes_rpi' do
 end
 
 bash 'run_layerx_swarm_rpi' do
-
-
   code <<-EOH
-    export DOCKER_TLS_VERIFY="#{node['layerx']['docker']['docker_tls_verify']}"
-    export DOCKER_HOST="#{node['layerx']['docker']['docker_host']}"
-    export DOCKER_CERT_PATH="#{node['layerx']['docker']['docker_cert_path']}"
-    export DOCKER_MACHINE_NAME="#{node['layerx']['docker']['docker_machine_name']}"
+    export DOCKER_TLS_VERIFY="#{node['layerx']['docker_tls_verify']}"
+    export DOCKER_HOST="#{node['layerx']['docker_host']}"
+    export DOCKER_CERT_PATH="#{node['layerx']['docker_cert_path']}"
+    export DOCKER_MACHINE_NAME="#{node['layerx']['docker_machine_name']}"
     export PATH=#{ENV['PATH']}:#{gopath}/bin:/usr/local/go/bin:/opt/go/bin:#{layerx_path}/bin
     echo "STARTING DOCKER SWARM RPI"
-    nohup layerx-swarm-rpi -layerx #{node['layerx']['bind_address']}:5000 -localip #{node['layerx']['bind_address']}-port 4005 > #{logs_dir}/swarm_rpi.log 2>&1 &
+    nohup layerx-swarm-rpi -layerx #{node['layerx']['bind_address']}:5000 -localip #{node['layerx']['bind_address']} -port 4005 > #{logs_dir}/swarm_rpi.log 2>&1 &
   EOH
   only_if (LayerxHelper::in_path?('layerx-core') && LayerxHelper::in_path?('layerx-mesos-tpi')) && node['layerx']['deploy_docker_swarm']
   user user
