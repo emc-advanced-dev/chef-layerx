@@ -97,8 +97,6 @@ end
 # Launch Layer-X
 bash 'run_layerx' do
   code <<-EOH
-    echo "STARTING ETCD"
-
     export PATH=#{ENV['PATH']}:#{gopath}/bin:/usr/local/go/bin:/opt/go/bin:#{layerx_path}/bin
     echo "STARTING LAYERX CORE"
     nohup layerx-core -etcd 127.0.0.1:2379 > #{logs_dir}/core.log 2>&1 &
@@ -109,6 +107,17 @@ bash 'run_layerx' do
     nohup layerx-mesos-rpi -layerx #{node['layerx']['bind_address']}:5000 -localip #{node['layerx']['bind_address']} --master #{node['layerx']['bind_address']}:5050 > #{logs_dir}/mesos_rpi.log 2>&1 &
   EOH
   only_if (LayerxHelper::in_path?('layerx-core') && LayerxHelper::in_path?('layerx-mesos-tpi'))
+  user user
+  group group
+end
+
+bash 'run_layerx_kubernetes_rpi' do
+  code <<-EOH
+    export PATH=#{ENV['PATH']}:#{gopath}/bin:/usr/local/go/bin:/opt/go/bin:#{layerx_path}/bin
+    echo "STARTING KUBENETES RPI"
+    nohup layerx-k8s-rpi -layerx #{node['layerx']['bind_address']}:5000 -localip #{node['layerx']['bind_address']} -kubeconfig #{node['layerx']['kubeconfig']} -port 4004 > #{logs_dir}/k8s_rpi.log 2>&1 &
+  EOH
+  only_if (LayerxHelper::in_path?('layerx-core') && LayerxHelper::in_path?('layerx-mesos-tpi')) && node['layerx']['deploy_kubernetes']
   user user
   group group
 end
